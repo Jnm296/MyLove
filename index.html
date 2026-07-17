@@ -41,8 +41,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
-
+    import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
     // ==========================================
     // 1. ตั้งค่าพื้นฐาน
     // ==========================================
@@ -77,9 +76,9 @@
     }
 
     player = new YT.Player('player', {
-        height: '360', // ลองเปลี่ยนเป็น 360 เพื่อให้เห็นตัววิดีโอว่ามันโหลดมาไหม
-        width: '640', 
-        videoId: extractVideoId(playlist[0]),
+    height: '0', // เปลี่ยนจาก 360 เป็น 0
+    width: '0',  // เปลี่ยนจาก 640 เป็น 0
+    videoId: extractVideoId(playlist[0]),
         events: { 
             'onReady': (event) => {
                 event.target.playVideo(); // บังคับเล่นเมื่อโหลดเสร็จ
@@ -171,4 +170,32 @@
         updateTrackTime();
     }, 1000);
     updateClock();
+
+    // ==========================================
+    // ฟังก์ชันนี้ใช้สำหรับ "เพิ่มลิงก์เข้าฐานข้อมูล" เท่านั้น
+    // ==========================================
+
+window.saveAndPlay = async () => {
+    const input = document.getElementById("musicInput");
+    const newUrl = input.value;
+    
+    // ตรวจสอบว่ามีลิงก์ไหม
+    if (!newUrl) {
+        alert("กรุณาใส่ลิงก์ก่อนค่ะ");
+        return;
+    }
+
+    try {
+        // บันทึกลิงก์ใหม่เข้าไปใน Array ของ Firebase
+        await updateDoc(doc(db, "my-playlist", "list"), {
+            songs: arrayUnion(newUrl)
+        });
+        
+        alert("บันทึกลิงก์ลงฐานข้อมูลเรียบร้อยแล้วค่ะ!");
+        input.value = ""; // ล้างช่องกรอกข้อมูล
+    } catch (error) {
+        console.error("บันทึกข้อมูลไม่ได้:", error);
+        alert("เกิดข้อผิดพลาดในการบันทึก ลองเช็ค Rules ใน Firebase ดูนะคะ");
+    }
+};
 </script> 
