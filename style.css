@@ -1,27 +1,66 @@
+/* =========================================================
+   1. ส่วนพื้นฐาน (Body & Background)
+   ========================================================= */
 body { 
     margin: 0; padding: 0; height: 100vh; overflow-x: hidden;
     background-image: url('my-background.jpg'); 
     background-size: cover; background-position: center; 
     background-color: rgba(255, 255, 255, 0.3); background-blend-mode: lighten;
 }
-/* ลบสไตล์ .vinyl เดิมที่ใช้ position: absolute ออก แล้วใช้ค่านี้แทน */
+
+/* =========================================================
+   2. ส่วนนาฬิกา (Clock Container)
+   ========================================================= */
+#clock-container {
+    position: fixed; top: 30px; left: 30px; color: #ffffff;
+    font-family: 'Segoe UI', sans-serif;
+    background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 35px;
+    padding: 30px 45px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+}
+#time { font-size: 5rem; font-weight: 700; letter-spacing: -2px; }
+#date { font-size: 1.2rem; font-weight: 400; opacity: 0.8; margin-top: 5px; text-transform: uppercase; letter-spacing: 2px; }
+
+/* =========================================================
+   3. ส่วนเพลงและแผงควบคุม (Music & Player)
+   ========================================================= */
+/* แผ่นเสียง */
 .vinyl { 
-    width: 200px; /* ปรับขนาดให้พอดี */
-    cursor: pointer; 
-    animation: spin 5s linear infinite; 
-    animation-play-state: paused; 
-    margin-top: 20px;
+    width: 200px; cursor: pointer; animation: spin 5s linear infinite; 
+    animation-play-state: paused; margin-top: 20px;
 }
 .vinyl-wrapper { display: flex; justify-content: center; }
-
-#music-status {
-    margin-top: 15px;
-    font-size: 0.9rem;
-    color: #fff;
-    text-align: center;
-    opacity: 0.8;
-}
 @keyframes spin { 100% { transform: rotate(360deg); } }
+#music-status { margin-top: 15px; font-size: 0.9rem; color: #fff; text-align: center; opacity: 0.8; }
+
+/* แผงควบคุมหลัก */
+#control-panel {
+    position: fixed; top: 0; right: -450px; width: 400px; height: 100vh;
+    background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px);
+    transition: right 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 1000; padding: 20px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); color: white;
+}
+#control-panel.active { right: 0; }
+
+/* หน้าปกและลิสต์เพลง */
+#now-playing-preview { text-align: center; margin-bottom: 20px; }
+#track-thumbnail { width: 120px; height: 120px; border-radius: 15px; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+#song-list { list-style: none; padding: 0; max-height: 300px; overflow-y: auto; }
+#song-list li { padding: 10px; background: rgba(255, 255, 255, 0.1); margin-bottom: 5px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+#song-list li:hover { background: rgba(255, 255, 255, 0.3); }
+#song-list::-webkit-scrollbar { width: 6px; }
+#song-list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 10px; }
+
+/* Input และ Button */
+#control-panel input { width: 90%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.1); color: white; margin-bottom: 10px; }
+#control-panel button { padding: 10px 20px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.3); color: white; cursor: pointer; transition: 0.3s; }
+#control-panel button:hover { background: rgba(255, 255, 255, 0.5); }
+
+/* =========================================================
+   4. ส่วนเสริม (Buttons & Overlay)
+   ========================================================= */
 #side-tab {
     position: fixed; top: 100px; right: 0;
     background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); 
@@ -30,87 +69,7 @@ body {
 }
 #side-tab:hover { background: rgba(255, 255, 255, 0.9); transform: translateX(-5px); }
 
-#control-panel {
-    position: fixed; 
-    top: 0; 
-    /* ขยับออกไปไกลกว่าเดิม */
-    right: -350px; 
-    width: 300px; 
-    height: 100%;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(15px);
-    transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
-    padding: 30px;
-    z-index: 9999; 
-    border-radius: 50px 0 0 50px;
-    
-    /* เพิ่มบรรทัดนี้: ทำให้มัน "ไม่มีตัวตน" ในขณะที่ซ่อนอยู่ */
-    visibility: hidden; 
-}
-
-/* เมื่อมีคลาส active ให้แสดงตัวและขยับเข้ามา */
-#control-panel.active { 
-    right: 0; 
-    visibility: visible; 
-}
-.image-placeholder {
-    width: 100%; height: 200px; background: rgba(255, 255, 255, 0.5);
-    border-radius: 20px; display: flex; justify-content: center; align-items: center;
-    margin-bottom: 20px; border: 2px dashed rgba(0,0,0,0.1); color: #888;
-}
-
 #overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0); /* โปร่งใสสนิท */
-    z-index: 9998; /* ให้อยู่ใต้ control-panel (9999) */
-    display: none; /* ซ่อนไว้ก่อน */
-}
-
-/* เมื่อหน้าต่าง active ให้เปิดตัว overlay ขึ้นมาบังหน้าจอ */
-#control-panel.active + #overlay {
-    display: block;
-}
-
-#clock-container {
-    position: fixed;
-    top: 30px;
-    left: 30px;
-    color: #ffffff; /* สีขาวสะอาด */
-    font-family: 'Segoe UI', sans-serif;
-    
-    /* สไตล์กระจกฝ้าที่นุ่มนวลขึ้น */
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px); /* รองรับ Safari */
-    
-    /* เพิ่มขอบที่ดูบางและโปร่ง */
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 35px;
-    padding: 30px 45px;
-    
-    /* เพิ่มเงาแบบนุ่มนวล (Soft Shadow) ให้ลอยเด่นขึ้นมาจากพื้นหลัง */
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
-    
-    pointer-events: none;
-}
-
-#time { 
-    font-size: 5rem; 
-    font-weight: 700; 
-    letter-spacing: -2px;
-    /* เพิ่มความหนาของตัวอักษรให้ดูโมเดิร์น */
-}
-
-#date { 
-    font-size: 1.2rem; 
-    font-weight: 400;
-    opacity: 0.8; 
-    margin-top: 5px;
-    /* เปลี่ยนฟอนต์ให้ดูอ่านง่าย */
-    text-transform: uppercase; 
-    letter-spacing: 2px;
+    display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(5px); z-index: 999;
 }
