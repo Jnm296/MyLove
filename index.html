@@ -27,15 +27,24 @@
     <div id="side-tab" onclick="togglePanel()">⚙️ ตั้งค่า</div>
 
     <div id="control-panel">
-        <div class="vinyl.png">ใส่รูปที่นี่</div>
-        <h3>Music Settings</h3>
-        <input type="text" id="musicInput" placeholder="วางลิงก์...">
-        <button onclick="saveAndPlay()">บันทึกและเล่น</button>
-        <div id="playlist">
-            <h4>รายการเพลง:</h4>
-            <p>กำลังเล่น: <span id="currentSong">ไม่ระบุ</span></p>
-        </div>
+    <!-- ส่วนบน: หน้าปกและชื่อ -->
+    <div id="now-playing-preview">
+        <img id="track-thumbnail" src="https://via.placeholder.com/150" alt="Cover">
+        <h3 id="display-title">เลือกเพลงเพื่อเริ่มฟัง</h3>
     </div>
+
+    <h3>Music Settings</h3>
+    <input type="text" id="musicInput" placeholder="วางลิงก์ YouTube ที่นี่...">
+    <button onclick="saveAndPlay()">เพิ่มเข้าคลังเพลง</button>
+
+    <!-- ส่วนรายการเพลง -->
+    <div id="playlist-container">
+        <h4>รายการเพลงของคุณ:</h4>
+        <ul id="song-list">
+            <!-- รายการเพลงจะมาแสดงตรงนี้ -->
+        </ul>
+    </div>
+</div>
 
     <div id="overlay" onclick="togglePanel()"></div>
 
@@ -71,21 +80,23 @@
     const docSnap = await getDoc(doc(db, "my-playlist", "list"));
     if (docSnap.exists() && docSnap.data().songs) {
         playlist = docSnap.data().songs;
+        loadPlaylistUI(); // <--- เพิ่มบรรทัดนี้ เพื่อให้รายการเพลงแสดงออกมา
     } else {
         playlist = ["dQw4w9WgXcQ"]; 
     }
 
+    // สร้าง Player
     player = new YT.Player('player', {
-    height: '0', // เปลี่ยนจาก 360 เป็น 0
-    width: '0',  // เปลี่ยนจาก 640 เป็น 0
-    videoId: extractVideoId(playlist[0]),
+        height: '0',
+        width: '0', 
+        videoId: extractVideoId(playlist[0]),
         events: { 
             'onReady': (event) => {
-                event.target.playVideo(); // บังคับเล่นเมื่อโหลดเสร็จ
-                document.getElementById("track-name").innerText = "คลิกที่แผ่นเสียงเพื่อเล่น/หยุด";
+                document.getElementById("track-name").innerText = "พร้อมเล่น";
+                // ตั้งค่าหน้าปกเริ่มต้น
+                document.getElementById("track-thumbnail").src = `https://img.youtube.com/vi/${extractVideoId(playlist[0])}/0.jpg`;
             },
-            'onStateChange': onPlayerStateChange,
-            'onError': (e) => console.error("YouTube Error Code:", e.data) // ถ้ามีปัญหาจะโชว์ใน Console
+            'onStateChange': onPlayerStateChange
         }
     });
 };
@@ -121,29 +132,20 @@
     // ==========================================
     // 3. ปุ่มกดและการทำงานหน้าเว็บ
     // ==========================================
-    window.togglePanel = () => document.getElementById("control-panel").classList.toggle("active");
-
-    // คลิกแผ่นเสียงเพื่อ เล่น/หยุด เพลง
-    window.toggleMusic = () => {
-        if (!player || !player.getPlayerState) return;
-        const vinyl = document.querySelector(".vinyl");
-        const state = player.getPlayerState();
-
-        if (state === YT.PlayerState.PLAYING) {
-            player.pauseVideo();
-            vinyl.style.animationPlayState = "paused";
-            document.getElementById("track-name").innerText = "หยุดเล่นชั่วคราว";
-        } else {
-            player.playVideo();
-            vinyl.style.animationPlayState = "running";
-            document.getElementById("track-name").innerText = "กำลังเล่น...";
-        }
-    };
-
-    // ปุ่มบันทึกในกล่องตั้งค่า
-    window.saveAndPlay = () => {
-        alert("เนื่องจากเราใช้ระบบ Playlist จากฐานข้อมูลแล้ว หากต้องการเพิ่มเพลง ให้ไปใส่ลิงก์เพิ่มในเว็บ Firebase ได้เลยครับ!");
-    };
+    // ปรับปรุงฟังก์ชัน togglePanel เพื่อให้จัดการทั้งตัว Panel และ Overlay
+window.togglePanel = () => {
+    const panel = document.getElementById("control-panel");
+    const overlay = document.getElementById("overlay");
+    
+    panel.classList.toggle("active");
+    
+    // ถ้า Panel เปิดอยู่ ให้แสดง Overlay เพื่อดักการคลิกข้างนอก
+    if (panel.classList.contains("active")) {
+        overlay.style.display = "block";
+    } else {
+        overlay.style.display = "none";
+    }
+};
 
     // ==========================================
     // 4. อัปเดตเวลาและสถานะเพลง
@@ -197,5 +199,28 @@ window.saveAndPlay = async () => {
         console.error("บันทึกข้อมูลไม่ได้:", error);
         alert("เกิดข้อผิดพลาดในการบันทึก ลองเช็ค Rules ใน Firebase ดูนะคะ");
     }
+};
+
+// ฟังก์ชันดึงเพลงมาแสดงในลิสต์
+async function loadPlaylistUI() {
+    const songList = document.getElementById("song-list");
+    songList.innerHTML = ""; // ล้างค่าเก่า
+
+    playlist.forEach((url, index) => {
+        const li = document.createElement("li");
+        li.innerText = `เพลงที่ ${index + 1}`;
+        li.onclick = () => playSpecificSong(index); // กดแล้วเล่นเพลงนั้นเลย
+        songList.appendChild(li);
+    });
+}
+
+// ฟังก์ชันสำหรับเล่นเพลงที่เลือก
+window.playSpecificSong = (index) => {
+    currentIndex = index;
+    player.loadVideoById(extractVideoId(playlist[currentIndex]));
+    player.playVideo();
+    // อัปเดตหน้าปก (ใช้ Thumbnail ของ YouTube)
+    document.getElementById("track-thumbnail").src = `https://img.youtube.com/vi/${extractVideoId(playlist[currentIndex])}/0.jpg`;
+    document.getElementById("display-title").innerText = "กำลังเล่นเพลงที่ " + (index + 1);
 };
 </script> 
