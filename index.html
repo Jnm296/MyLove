@@ -276,11 +276,21 @@ window.playSpecificSong = (index) => {
     currentIndex = index;
     const selectedSong = playlist[currentIndex];
     
-    player.loadVideoById(extractVideoId(selectedSong.url));
+    // ตรวจสอบว่า selectedSong คือ Object หรือ String (เพื่อรองรับทั้งข้อมูลเก่าและใหม่)
+    const videoUrl = typeof selectedSong === 'object' ? selectedSong.url : selectedSong;
+    const videoName = typeof selectedSong === 'object' ? selectedSong.name : "เพลงที่ " + (index + 1);
+    
+    // เล่นเพลง
+    player.loadVideoById(extractVideoId(videoUrl));
     player.playVideo();
     
-    // อัปเดตหน้าปกและชื่อเพลง
-    document.getElementById("track-thumbnail").src = `https://img.youtube.com/vi/${extractVideoId(selectedSong.url)}/0.jpg`;
-    document.getElementById("display-title").innerText = selectedSong.name; // โชว์ชื่อเพลงที่หน้าจอ
+    // อัปเดตชื่อเพลง
+    document.getElementById("display-title").innerText = videoName;
+    
+    // อัปเดตหน้าปก (รูป)
+    const videoId = extractVideoId(videoUrl);
+    if(videoId) {
+        document.getElementById("track-thumbnail").src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
 };
 </script> 
