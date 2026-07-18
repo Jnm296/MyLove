@@ -48,6 +48,10 @@
 
     <div id="overlay" onclick="togglePanel()"></div>
 
+    <div id="cute-popup" class="hidden">
+    <p id="popup-text">บันทึกเพลงให้แล้วน้า!</p>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
     import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
@@ -69,6 +73,24 @@
     let player;
     let playlist = []; 
     let currentIndex = 0;
+
+    // วางฟังก์ชันนี้ไว้ในระดับเดียวกับ window.saveAndPlay
+window.showPopup = (message) => {
+    const popup = document.getElementById("cute-popup");
+    const text = document.getElementById("popup-text");
+    text.innerText = message;
+    
+    popup.classList.remove("hidden");
+    setTimeout(() => {
+        popup.classList.add("hidden");
+    }, 3000);
+};
+
+// ตรวจสอบให้แน่ใจว่า window.saveAndPlay อยู่ในระดับเดียวกันแบบนี้
+window.saveAndPlay = async () => {
+    // ... โค้ดบันทึกของคุณ ...
+    showPopup("บันทึกสำเร็จแล้ว!"); // ทีนี้มันจะรู้จักแล้วครับ
+};
 
     // ==========================================
     // 2. ระบบดึงเพลงและ YouTube Player
@@ -144,42 +166,7 @@
     }
 }
 
-    window.saveAndPlay = async () => {
-    const input = document.getElementById("musicInput");
-    const newUrl = input.value;
-    
-    if (!newUrl) {
-        alert("กรุณาใส่ลิงก์ก่อนค่ะ");
-        return;
-    }
 
-    // 1. ดึงชื่อเพลงให้สำเร็จก่อน
-    const songTitle = await getYouTubeTitle(newUrl);
-    
-    // 2. ตรวจสอบก่อนส่งว่ามีชื่อจริงๆ (ถ้าไม่มีให้ตั้งชื่อสำรอง)
-    const dataToSave = { 
-        url: newUrl, 
-        name: songTitle || "เพลงไม่มีชื่อ" 
-    };
-
-    try {
-        // 3. บันทึก Object เข้า Firebase
-        await updateDoc(doc(db, "my-playlist", "list"), {
-            songs: arrayUnion(dataToSave)
-        });
-        
-        alert(`บันทึก "${dataToSave.name}" เรียบร้อยแล้วค่ะ!`);
-        input.value = "";
-        
-        // 4. อัปเดต Array ในเครื่องและหน้าจอทันที
-        playlist.push(dataToSave); 
-        loadPlaylistUI(); 
-        
-    } catch (error) {
-        console.error("บันทึกข้อมูลไม่ได้:", error);
-        alert("เกิดข้อผิดพลาด ลองเช็ค Rules ใน Firebase ดูนะคะ");
-    }
-};
 
     // ==========================================
     // 3. ปุ่มกดและการทำงานหน้าเว็บ
@@ -225,72 +212,88 @@ window.togglePanel = () => {
     }, 1000);
     updateClock();
 
-    // ==========================================
-    // ฟังก์ชันนี้ใช้สำหรับ "เพิ่มลิงก์เข้าฐานข้อมูล" เท่านั้น
-    // ==========================================
+// ==========================================
+// ส่วนของการเพิ่มเพลง (วางต่อกันใน script นะคะ)
+// ==========================================
 
 window.saveAndPlay = async () => {
     const input = document.getElementById("musicInput");
     const newUrl = input.value;
     
-    // ตรวจสอบว่ามีลิงก์ไหม
-    if (!newUrl) {
-        alert("กรุณาใส่ลิงก์ก่อนค่ะ");
+    if (!newUrl) return alert("ใส่ลิงก์ก่อนน้า");
+    
+    // เช็คว่าซ้ำไหม
+    if (playlist.includes(newUrl)) {
+        alert("เพลงนี้มีในคลังแล้วค่ะที่รัก!");
         return;
     }
 
     try {
-        // บันทึกลิงก์ใหม่เข้าไปใน Array ของ Firebase
+        // 1. บันทึกลง Firebase
         await updateDoc(doc(db, "my-playlist", "list"), {
             songs: arrayUnion(newUrl)
         });
         
-        alert("บันทึกลิงก์ลงฐานข้อมูลเรียบร้อยแล้วค่ะ!");
-        input.value = ""; // ล้างช่องกรอกข้อมูล
+        // 2. อัปเดต Array ในเครื่อง
+        playlist.push(newUrl); 
+        
+        // 3. วาดรายการใหม่
+        loadPlaylistUI(); 
+        
+        // 4. ล้างช่อง input และแสดง Pop-up
+        input.value = "";
+        showPopup("เพิ่มเพลงให้แล้วน้า! 🎵");
+        
     } catch (error) {
-        console.error("บันทึกข้อมูลไม่ได้:", error);
-        alert("เกิดข้อผิดพลาดในการบันทึก ลองเช็ค Rules ใน Firebase ดูนะคะ");
+        console.error("Error: ", error);
+        alert("บันทึกไม่สำเร็จ ลองใหม่อีกทีนะ");
     }
 };
 
-// ฟังก์ชันดึงเพลงมาแสดงในลิสต์
-// ตรวจสอบว่าในไฟล์ index.html ของคุณ โค้ดส่วนนี้ดึงค่าถูกต้องไหม
-async function loadPlaylistUI() {
+// ฟังก์ชันดึงเพลงมาแสดง (ต้องอยู่นอก saveAndPlay)
+function loadPlaylistUI() {
     const songList = document.getElementById("song-list");
     songList.innerHTML = ""; 
 
-    playlist.forEach((song, index) => {
+    playlist.forEach((url, index) => {
         const li = document.createElement("li");
+        li.innerText = "กำลังโหลด..."; 
         
-        // ตรงนี้คือหัวใจสำคัญครับ
-        // ถ้า song เป็น object ให้ดึง song.name มาโชว์
-        const displayName = (song && song.name) ? song.name : "ชื่อเพลงกำลังโหลด...";
-        
-        li.innerText = displayName;
+        // ดึงชื่อเพลง
+        fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`)
+            .then(res => res.json())
+            .then(data => { li.innerText = data.title; })
+            .catch(() => { li.innerText = "เพลงที่ " + (index + 1); });
+
         li.onclick = () => playSpecificSong(index);
         songList.appendChild(li);
     });
 }
 
-window.playSpecificSong = (index) => {
+window.playSpecificSong = async (index) => {
     currentIndex = index;
-    const selectedSong = playlist[currentIndex];
+    const url = playlist[currentIndex];
     
-    // ตรวจสอบว่า selectedSong คือ Object หรือ String (เพื่อรองรับทั้งข้อมูลเก่าและใหม่)
-    const videoUrl = typeof selectedSong === 'object' ? selectedSong.url : selectedSong;
-    const videoName = typeof selectedSong === 'object' ? selectedSong.name : "เพลงที่ " + (index + 1);
-    
-    // เล่นเพลง
-    player.loadVideoById(extractVideoId(videoUrl));
-    player.playVideo();
-    
-    // อัปเดตชื่อเพลง
-    document.getElementById("display-title").innerText = videoName;
-    
-    // อัปเดตหน้าปก (รูป)
-    const videoId = extractVideoId(videoUrl);
-    if(videoId) {
+    // 1. เปลี่ยนชื่อบนจอทันที
+    const displayTitle = document.getElementById("display-title");
+    displayTitle.innerText = "กำลังโหลดชื่อเพลง...";
+
+    // 2. ดึงชื่อเพลงจาก YouTube
+    try {
+        const res = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+        const data = await res.json();
+        displayTitle.innerText = data.title;
+        
+        // 3. อัปเดตหน้าปกให้ตรงกับเพลงนั้น
+        const videoId = extractVideoId(url);
         document.getElementById("track-thumbnail").src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    } catch (e) {
+        displayTitle.innerText = "เพลงที่ " + (index + 1);
     }
-};
-</script> 
+
+    // 4. สั่งให้ Player เล่นเพลง
+    player.loadVideoById(extractVideoId(url));
+    player.playVideo();
+
+    
+};</script> 
