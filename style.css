@@ -73,3 +73,38 @@ body {
     display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(5px); z-index: 999;
 }
+
+
+
+
+/* ปรับขนาดหน้าปกเพลงให้ใหญ่ขึ้น */
+#track-thumbnail {
+    width: 400px;       /* เดิมอาจจะเล็กกว่านี้ ปรับเป็น 250px */
+    height: 220px;      /* ให้เป็นจัตุรัส */
+    border-radius: 20px; /* เพิ่มความโค้งให้ดูละมุน */
+    object-fit: cover;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3); /* เพิ่มเงาให้ดูลอยตัว */
+    margin-bottom: 20px;
+    transition: transform 0.3s ease; /* เพิ่มลูกเล่นตอนเมาส์ชี้ */
+}
+
+
+#display-title {
+    font-size: 1.5rem;    
+    color: #ffffff;
+    font-weight: 700;
+    margin: 10px auto;    /* ใช้ auto เพื่อให้อยู่ตรงกลาง */
+    max-width: 90%;       /* เปลี่ยนจาก 300px เป็น 90% ของกล่อง เพื่อให้มันยืดหยุ่น */
+    line-height: 1.4;
+    text-align: center;   /* ทำให้ข้อความที่ยาวหลายบรรทัดจัดกลางสวยๆ */
+}
+
+#cute-popup {
+    position: fixed; bottom: 30px; right: 30px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px 25px; border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    z-index: 9999; transition: all 0.5s ease;
+    border: 2px solid #ffb6c1; /* สีขอบน่ารักๆ */
+}
+.hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
