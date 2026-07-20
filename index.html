@@ -48,10 +48,13 @@
      <!-- แผงเพลง -->
     <div id="control-panel">
         <!-- ส่วนบน: หน้าปกและชื่อ -->
-        <div id="now-playing-preview">
-            <img id="track-thumbnail" src="https://via.placeholder.com/150" alt="Cover">
-            <h3 id="display-title">เลือกเพลงเพื่อเริ่มฟัง</h3>
-        </div>
+<div id="now-playing-preview">
+    <!-- เปลี่ยนจาก img เป็น div สำหรับใส่ iframe วิดีโอ -->
+    <div id="video-preview-container" style="width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #000;">
+        <div id="preview-player"></div>
+    </div>
+    <h3 id="display-title">เลือกเพลงเพื่อเริ่มฟัง</h3>
+</div>
 
         <h3>Music Settings</h3>
         <input type="text" id="musicInput" placeholder="วางลิงก์ YouTube ที่นี่...">
@@ -119,6 +122,7 @@
     const db = getFirestore(app);
     
     let player;
+    let previewPlayer; // เพิ่มตัวแปรสำหรับจอพรีวิว
     let playlist = []; 
     let currentIndex = 0;
     let isShuffle = false;
@@ -143,6 +147,7 @@
     tag.src = "https://www.youtube.com/iframe_api";
     document.head.appendChild(tag);
 
+    // แก้ไขตอน onYouTubeIframeAPIReady เพื่อสร้าง previewPlayer เพิ่ม
     window.onYouTubeIframeAPIReady = async () => {
         const docSnap = await getDoc(doc(db, "my-playlist", "list"));
         if (docSnap.exists() && docSnap.data().songs) {
@@ -152,16 +157,30 @@
             playlist = ["dQw4w9WgXcQ"]; 
         }
 
+        const firstVidId = extractVideoId(playlist[0]);
+
+        // ตัวเล่นหลัก (ซ่อนไว้เล่นเสียง/ควบคุมระบบ)
         player = new YT.Player('player', {
             height: '0',
             width: '0', 
-            videoId: extractVideoId(playlist[0]),
+            videoId: firstVidId,
             events: { 
                 'onReady': (event) => {
                     document.getElementById("track-name").innerText = "พร้อมเล่น";
-                    document.getElementById("track-thumbnail").src = `https://img.youtube.com/vi/${extractVideoId(playlist[0])}/0.jpg`;
                 },
                 'onStateChange': onPlayerStateChange
+            }
+        });
+
+        // ตัวเล่นสำหรับแสดงผลวิดีโอขยับได้ในหน้าต่างตั้งค่า
+        previewPlayer = new YT.Player('preview-player', {
+            height: '100%',
+            width: '100%',
+            videoId: firstVidId,
+            playerVars: {
+                'autoplay': 0,
+                'controls': 1,
+                'mute': 0 // ตั้งเป็น 1 หากต้องการให้วิดีโอพรีวิวไม่มีเสียงตีกันกับตัวเล่นหลัก
             }
         });
     };
@@ -339,20 +358,25 @@
         const displayTitle = document.getElementById("display-title");
         displayTitle.innerText = "กำลังโหลดชื่อเพลง...";
 
+        const videoId = extractVideoId(url);
+
         try {
             const res = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
             const data = await res.json();
             displayTitle.innerText = data.title;
-            
-            const videoId = extractVideoId(url);
-            document.getElementById("track-thumbnail").src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
         } catch (e) {
             displayTitle.innerText = "เพลงที่ " + (index + 1);
         }
 
-        player.loadVideoById(extractVideoId(url));
+        // เล่นเพลงในระบบหลัก
+        player.loadVideoById(videoId);
         player.playVideo();
-    };
+
+        // สั่งให้จอพรีโหมดเล่นวิดีโอตัวเดียวกันขยับตาม
+        if (previewPlayer && previewPlayer.loadVideoById) {
+            previewPlayer.loadVideoById(videoId);
+        }
+    }; 
 
     async function initMessage() {
         const input = document.getElementById("daily-message");
