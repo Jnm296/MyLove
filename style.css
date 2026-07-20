@@ -23,14 +23,25 @@ body {
    2. ส่วนนาฬิกา (Clock Container)
    ========================================================= */
 #clock-container {
-    position: fixed; top: 30px; left: 30px; color: #ffffff;
+    position: absolute; /* หรือ fixed ตามการจัดวางเดิมของคุณ */
+    top: 30px; 
+    left: 30px; 
+    color: #ffffff;
     font-family: 'Segoe UI', sans-serif;
-    background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.1); 
+    backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 35px;
-    padding: 30px 45px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
-    pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    border-radius: 35px;
+    padding: 30px 45px; 
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+    
+    /* --- เพิ่ม 3 บรรทัดนี้เพื่อล็อคขนาดไม่ให้ขยายเอง --- */
+    width: 380px;            /* กำหนดความกว้างกล่องให้คงที่ (ปรับเพื่ม/ลดได้ตามต้องการ) */
+    box-sizing: border-box;  /* ให้ padding ไม่ไปดันความกว้างรวม */
+    overflow: hidden;        /* ป้องกันไม่ให้เนื้อหาข้างในที่เกินมาดันกล่องให้ขยาย */
 }
+
 #time { font-size: 5rem; font-weight: 700; letter-spacing: -2px; }
 #date { font-size: 1.2rem; font-weight: 400; opacity: 0.8; margin-top: 5px; text-transform: uppercase; letter-spacing: 2px; }
 
