@@ -1,11 +1,22 @@
 /* =========================================================
    1. ส่วนพื้นฐาน (Body & Background)
    ========================================================= */
-body { 
-    margin: 0; padding: 0; height: 100vh; overflow-x: hidden;
-    background-image: url('my-background.jpg'); 
-    background-size: cover; background-position: center; 
-    background-color: rgba(255, 255, 255, 0.3); background-blend-mode: lighten;
+body {
+    margin: 0;
+    padding: 0;
+    /* ใช้ linear-gradient ทับรูปภาพ */
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3)), 
+        url('my-background.jpg');
+    
+    background-size: cover;
+    background-position: center;
+    
+    /* เปลี่ยนจาก fixed เป็น scroll เพื่อให้รูปภาพเลื่อนไปพร้อมกับหน้าเว็บ */
+    background-attachment: scroll; 
+    
+    background-repeat: no-repeat;
+    min-height: 100vh;
 }
 
 /* =========================================================
@@ -23,6 +34,22 @@ body {
 #time { font-size: 5rem; font-weight: 700; letter-spacing: -2px; }
 #date { font-size: 1.2rem; font-weight: 400; opacity: 0.8; margin-top: 5px; text-transform: uppercase; letter-spacing: 2px; }
 
+/* เพื่อให้ Clock-container อยู่ในหน้าจอแรกพอดี */
+.screen:first-child {
+    position: relative; /* สำหรับให้ #clock-container อ้างอิงตำแหน่ง */
+}
+
+#clock-container {
+    position: absolute; /* เปลี่ยนเป็น absolute เพื่อให้อยู่ใน section แรก */
+    top: 30px; 
+    left: 30px;
+}
+
+.input-wrapper {
+    position: absolute; /* เปลี่ยนจาก fixed เป็น absolute ให้อยู่ท้าย section แรก */
+    bottom: 30px;
+}
+
 /* =========================================================
    3. ส่วนเพลงและแผงควบคุม (Music & Player)
    ========================================================= */
@@ -35,6 +62,16 @@ body {
 @keyframes spin { 100% { transform: rotate(360deg); } }
 #music-status { margin-top: 15px; font-size: 0.9rem; color: #fff; text-align: center; opacity: 0.8; }
 
+/* คลาสสำหรับสั่งให้หมุน */
+.vinyl.spinning {
+    animation: rotateVinyl 5s linear infinite;
+}
+
+@keyframes rotateVinyl {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 /* แผงควบคุมหลัก */
 #control-panel {
     position: fixed; top: 0; right: -450px; width: 400px; height: 100vh;
@@ -46,7 +83,6 @@ body {
 
 /* หน้าปกและลิสต์เพลง */
 #now-playing-preview { text-align: center; margin-bottom: 20px; }
-#track-thumbnail { width: 120px; height: 120px; border-radius: 15px; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 #song-list { list-style: none; padding: 0; max-height: 300px; overflow-y: auto; }
 #song-list li { padding: 10px; background: rgba(255, 255, 255, 0.1); margin-bottom: 5px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
 #song-list li:hover { background: rgba(255, 255, 255, 0.3); }
@@ -58,6 +94,63 @@ body {
 #control-panel button { padding: 10px 20px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.3); color: white; cursor: pointer; transition: 0.3s; }
 #control-panel button:hover { background: rgba(255, 255, 255, 0.5); }
 
+#track-thumbnail {
+    width: 400px; height: 220px; border-radius: 20px;
+    object-fit: cover; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    margin-bottom: 20px; transition: transform 0.3s ease;
+}
+
+#display-title {
+    font-size: 1.5rem; color: #ffffff; font-weight: 700;
+    margin: 10px auto; max-width: 90%; line-height: 1.4; text-align: center;
+}
+
+.input-wrapper {
+    position: absolute;       /* เปลี่ยนจาก fixed เป็น absolute */
+    top: 680px;               /* ปรับระยะห่างจากขอบบน (ลองเปลี่ยนเลขได้ตามชอบ) */
+    left: 50%;                /* จัดกลางในแนวนอน */
+    transform: translateX(-50%); /* ดึงกลับมาให้กึ่งกลางเป๊ะๆ */
+    width: 800px;             /* ความกว้างเดิม */
+    z-index: 100;             /* ให้ลอยอยู่เหนือรูปพื้นหลัง */
+}
+
+#daily-message {
+    width: 100%; padding: 10px; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.2);
+    text-align: center; color: white;
+}
+
+#player-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+/* สีและสไตล์ของปุ่มควบคุมทั้งหมด */
+.ctrl-btn {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #333333; /* สีเทาเข้มสำหรับทุกปุ่ม */
+    opacity: 0.7; /* ความทึบปกติ */
+    transition: opacity 0.3s, color 0.3s;
+    margin: 0 5px;
+    padding: 5px;
+}
+
+/* สถานะเวลาเปิดใช้งานโหมดสุ่มหรือเล่นซ้ำ */
+.ctrl-btn.active {
+    opacity: 1;
+    color: #222222;
+}
+
+/* เปลี่ยนสีข้อความสถานะเพลงและเวลาให้เป็นสีเทาเข้ม */
+#track-name, 
+#track-time {
+    color: #4a4a4a !important; /* ปรับเป็นสีเทาเข้มที่อ่านง่ายและสบายตา */
+}
 /* =========================================================
    4. ส่วนเสริม (Buttons & Overlay)
    ========================================================= */
@@ -74,37 +167,181 @@ body {
     background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(5px); z-index: 999;
 }
 
-
-
-
-/* ปรับขนาดหน้าปกเพลงให้ใหญ่ขึ้น */
-#track-thumbnail {
-    width: 400px;       /* เดิมอาจจะเล็กกว่านี้ ปรับเป็น 250px */
-    height: 220px;      /* ให้เป็นจัตุรัส */
-    border-radius: 20px; /* เพิ่มความโค้งให้ดูละมุน */
-    object-fit: cover;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3); /* เพิ่มเงาให้ดูลอยตัว */
-    margin-bottom: 20px;
-    transition: transform 0.3s ease; /* เพิ่มลูกเล่นตอนเมาส์ชี้ */
-}
-
-
-#display-title {
-    font-size: 1.5rem;    
-    color: #ffffff;
-    font-weight: 700;
-    margin: 10px auto;    /* ใช้ auto เพื่อให้อยู่ตรงกลาง */
-    max-width: 90%;       /* เปลี่ยนจาก 300px เป็น 90% ของกล่อง เพื่อให้มันยืดหยุ่น */
-    line-height: 1.4;
-    text-align: center;   /* ทำให้ข้อความที่ยาวหลายบรรทัดจัดกลางสวยๆ */
-}
-
+/* =========================================================
+   6. ส่วน Pop-up และเอฟเฟกต์ (Animations & UI)
+   ========================================================= */
 #cute-popup {
-    position: fixed; bottom: 30px; right: 30px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 15px 25px; border-radius: 20px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    z-index: 9999; transition: all 0.5s ease;
-    border: 2px solid #ffb6c1; /* สีขอบน่ารักๆ */
+    position: fixed; 
+    bottom: 30px; 
+    right: 30px;
+    background: rgba(255, 255, 255, 0.95); /* ขาวขึ้นอีกนิด */
+    padding: 15px 30px; 
+    border-radius: 25px; /* มนขึ้น */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    z-index: 9999;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid #ffe4e6; /* ชมพูอ่อนละมุน */
+    font-weight: 500;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
+
 .hidden { opacity: 0; transform: translateY(20px); pointer-events: none; }
+
+/* เอฟเฟกต์ซากุระ */
+#sakura-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: -1;
+}
+
+.sakura {
+    position: absolute; width: 20px; height: 20px;
+    background-color: #ffc0cb; border-radius: 50% 0 50% 0;
+    opacity: 0.9; animation: fall linear forwards;
+}
+
+@keyframes fall {
+    0% { transform: translateY(-20px) rotate(0deg); }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+/* =========================================================
+   6. ระบบการเลื่อนหน้าจอ (Scrolling System)
+   ========================================================= */
+/* ทำให้ทั้งหน้าเว็บเลื่อนได้นุ่มนวล */
+html {
+    scroll-behavior: smooth;
+    overflow-y: scroll; /* บังคับให้มี Scrollbar ตลอด */
+}
+
+/* กำหนดให้แต่ละ section สูงเต็มหน้าจอ */
+.screen {
+    min-height: 100vh; /* ใช้ min-height แทน height เพื่อความยืดหยุ่น */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+}
+
+
+
+
+/* =========================================================
+   7. ปรับแต่งหน้าจอเมนู (Menu Section)
+   ========================================================= */
+/* ส่วนเมนูให้ขยับลงมาตามที่ต้องการ */
+.menu-section {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    /* เปลี่ยนจาก align-items: center เป็น flex-start เพื่อให้มันอยู่ค่อนไปทางด้านล่าง */
+    align-items: flex-start; 
+    /* เพิ่ม padding-top เพื่อดันกล่องเมนูให้ต่ำลงมาจากขอบหน้าจอ */
+    padding-top: 700px; 
+    background-color: transparent; /* เอาพื้นหลังสีดำออกเพื่อให้กลมกลืน */
+}
+
+/* ปรับแต่งแผงกระจกฝ้า */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 50px;
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    
+    margin: 50px auto; 
+    
+    /* ตรงนี้คือจุดที่ปรับความกว้างค่ะ */
+    max-width: 1100px; /* เพิ่มจาก 850px เป็น 1100px หรือมากกว่านี้ได้เลยค่ะ */
+    width: 90%; 
+    
+    position: static; 
+    top: auto;
+    left: auto;
+    transform: none;
+}
+
+.menu-title {
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 40px;
+    font-weight: 700;
+    font-size: 1.8rem;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.tags-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.tag {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px 30px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: #444;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.tag:hover {
+    background: #ff85a2;
+    color: white;
+    transform: translateY(-8px) scale(1.05);
+    border-color: #ff85a2;
+    box-shadow: 0 6px 15px rgba(255,133,162,0.4);
+}
+
+.calendar-wrapper {
+    margin-top: 40px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.9); /* พื้นหลังขาวนวล */
+    border-radius: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* เงาให้ดูเหมือน Widget ลอยได้ */
+}
+
+.calendar-header {
+    color: #555; /* เปลี่ยนเป็นสีเข้มเพื่อให้ตัดกับพื้นหลังขาว */
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    text-align: center;
+}
+
+.day-name { 
+    color: #999; 
+    font-size: 0.8rem; 
+    text-transform: uppercase;
+    padding-bottom: 10px;
+}
+
+.day-num { 
+    padding: 15px 5px; 
+    color: #444;
+    border-radius: 15px;
+    transition: 0.3s;
+    background: rgba(0, 0, 0, 0.03); /* สร้างช่องจางๆ ให้แต่ละวัน */
+}
+
+/* สีไฮไลท์วันปัจจุบันให้ดูน่ารักแบบ Widget */
+.today {
+    background: #ff85a2 !important;
+    color: white !important;
+    font-weight: bold;
+}
