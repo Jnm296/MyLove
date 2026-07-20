@@ -71,35 +71,40 @@ body {
 /* =========================================================
    3. ส่วนเพลงและแผงควบคุม (Music & Player)
    ========================================================= */
+/* =========================================================
+   3. ส่วนเพลงและแผงควบคุม (Music & Player)
+   ========================================================= */
 /* แผ่นเสียง */
 .vinyl { 
     width: 200px; cursor: pointer; animation: spin 5s linear infinite; 
     animation-play-state: paused; margin-top: 20px;
 }
-.vinyl-wrapper { display: flex; justify-content: center; }
+.vinyl-wrapper { display: flex; justify-content: center; width: 100%; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
+
 #music-status {
-    width: 100%;             /* ให้กว้างเต็มกรอบพอดี ไม่ล้น */
-    overflow: hidden;
-    text-align: center;
+    width: 100%;            
+    display: flex;
+    flex-direction: column;
+    align-items: center;     /* บังคับให้เนื้อหาข้างในจัดกึ่งกลางแนวนอน */
+    text-align: center;      /* จัดข้อความให้อยู่ตรงกลาง */
+    margin-top: 5px;
 }
 
 #track-name {
     width: 100%;
-    white-space: nowrap;     /* บังคับให้แสดงผลเป็นบรรทัดเดียว */
+    white-space: nowrap;     
     overflow: hidden;
-    text-overflow: ellipsis; /* หากชื่อเพลงยาวเกินไป จะเปลี่ยนเป็นเครื่องหมาย ... ทันที ไม่ดันกล่อง */
-    margin-top: 10px;
+    text-overflow: ellipsis; 
     font-size: 0.95rem;
-}
-/* คลาสสำหรับสั่งให้หมุน */
-.vinyl.spinning {
-    animation: rotateVinyl 5s linear infinite;
+    text-align: center;      /* จัดชื่อเพลงให้อยู่กึ่งกลาง */
 }
 
-@keyframes rotateVinyl {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+#track-time {
+    text-align: center;      /* จัดเวลาเพลงให้อยู่กึ่งกลาง */
+    font-size: 0.85rem;
+    margin-top: 3px;
+    opacity: 0.8;
 }
 
 /* แผงควบคุมหลัก */
