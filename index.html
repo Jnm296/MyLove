@@ -159,11 +159,14 @@
 
         const firstVidId = extractVideoId(playlist[0]);
 
-        // ตัวเล่นหลัก (ซ่อนไว้เล่นเสียง/ควบคุมระบบ)
+        // ตัวเล่นหลัก (ซ่อนไว้สำหรับควบคุมระบบ/เล่นเบื้องหลัง)
         player = new YT.Player('player', {
             height: '0',
             width: '0', 
             videoId: firstVidId,
+            playerVars: {
+                'mute': 1 // ปิดเสียงตัวเล่นหลัก ป้องกันเสียงซ้อน
+            },
             events: { 
                 'onReady': (event) => {
                     document.getElementById("track-name").innerText = "พร้อมเล่น";
