@@ -23,7 +23,7 @@ body {
    2. ส่วนนาฬิกา (Clock Container)
    ========================================================= */
 #clock-container {
-    position: absolute; /* หรือ fixed ตามการจัดวางเดิมของคุณ */
+    position: absolute; 
     top: 30px; 
     left: 30px; 
     color: #ffffff;
@@ -36,10 +36,17 @@ body {
     padding: 30px 45px; 
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
     
-    /* --- เพิ่ม 3 บรรทัดนี้เพื่อล็อคขนาดไม่ให้ขยายเอง --- */
-    width: 380px;            /* กำหนดความกว้างกล่องให้คงที่ (ปรับเพื่ม/ลดได้ตามต้องการ) */
-    box-sizing: border-box;  /* ให้ padding ไม่ไปดันความกว้างรวม */
-    overflow: hidden;        /* ป้องกันไม่ให้เนื้อหาข้างในที่เกินมาดันกล่องให้ขยาย */
+    /* --- ล็อคขนาดตายตัว --- */
+    width: 320px;            
+    height: auto;            /* ไม่ปล่อยให้ยืดตามใจชอบ */
+    max-height: 620px;       /* กำหนดความสูงสูงสุดเอาไว้ */
+    box-sizing: border-box;  
+    overflow: hidden;        /* ตัดส่วนที่เกินออกทั้งหมด ไม่ยอมให้กล่องขยาย */
+
+    display: flex;
+    flex-direction: column;  
+    align-items: center;     
+    text-align: center;      
 }
 
 #time { font-size: 5rem; font-weight: 700; letter-spacing: -2px; }
@@ -71,8 +78,20 @@ body {
 }
 .vinyl-wrapper { display: flex; justify-content: center; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
-#music-status { margin-top: 15px; font-size: 0.9rem; color: #fff; text-align: center; opacity: 0.8; }
+#music-status {
+    width: 100%;             /* ให้กว้างเต็มกรอบพอดี ไม่ล้น */
+    overflow: hidden;
+    text-align: center;
+}
 
+#track-name {
+    width: 100%;
+    white-space: nowrap;     /* บังคับให้แสดงผลเป็นบรรทัดเดียว */
+    overflow: hidden;
+    text-overflow: ellipsis; /* หากชื่อเพลงยาวเกินไป จะเปลี่ยนเป็นเครื่องหมาย ... ทันที ไม่ดันกล่อง */
+    margin-top: 10px;
+    font-size: 0.95rem;
+}
 /* คลาสสำหรับสั่งให้หมุน */
 .vinyl.spinning {
     animation: rotateVinyl 5s linear infinite;
