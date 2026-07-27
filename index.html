@@ -7,101 +7,119 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;700&display=swap" rel="stylesheet">
 </head>
 <body>
+<body>
 
-    <div class="input-wrapper">
-        <input type="text" id="daily-message" placeholder="กำลังโหลดข้อความ...">
-        <div id="sakura-container"></div>
-    </div>
-    
-    <!-- นาฬิกา -->
-    <div id="clock-container">
-        <div id="time">00:00</div>
-        <div id="date">วันเดือนปี</div>
-    
-        <!-- แผ่นเสียง -->
-        <div class="vinyl-wrapper" onclick="toggleMusic()" style="position: relative;">
-            <img src="vinyl.png" class="vinyl">
-            <!-- จุดกำเนิดกลีบดอกไม้ตอนเปิดเพลง -->
-            <div id="vinyl-sakura-container" class="vinyl-sakura-container"></div>
+    <!-- สร้างกล่องครอบหน้าจอแรก (Screen 1) -->
+    <div class="screen">
+        <!-- นาฬิกาและเครื่องเล่นเพลง -->
+        <div id="clock-container">
+            <div id="time">00:00</div>
+            <div id="date">วันเดือนปี</div>
+        
+            <!-- แผ่นเสียง -->
+            <div class="vinyl-wrapper" onclick="toggleMusic()" style="position: relative;">
+                <img src="vinyl.png" class="vinyl">
+                <div id="vinyl-sakura-container" class="vinyl-sakura-container"></div>
+            </div>
+
+            <!-- ปุ่มควบคุม -->
+            <div id="player-controls">
+                <button class="ctrl-btn" onclick="toggleShuffle()" title="สุ่มเพลง">⟳</button>
+                <button class="ctrl-btn" onclick="playPrevSong()" title="เพลงก่อนหน้า">◀</button>
+                <button class="ctrl-btn" id="play-pause-btn" onclick="togglePlayPause()" title="เล่น/หยุดเพลง">❚❚</button>
+                <button class="ctrl-btn" onclick="playNextSong()" title="เพลงถัดไป">▶</button>
+                <button class="ctrl-btn" id="repeat-btn" onclick="toggleRepeat()" title="เล่นซ้ำ">⟳</button>
+            </div>
+        
+            <!-- สถานะเพลง -->
+            <div id="music-status">
+                <div id="track-name">ไม่ได้เล่นเพลง</div>
+                <div id="track-time">00:00 / 00:00</div>
+            </div>
         </div>
 
-        <!-- เพิ่มปุ่มควบคุมเครื่องเล่นเพลง (ใช้สัญลักษณ์พิเศษ) -->
-        <div id="player-controls">
-            <button class="ctrl-btn" onclick="toggleShuffle()" title="สุ่มเพลง">⟳</button>
-            <button class="ctrl-btn" onclick="playPrevSong()" title="เพลงก่อนหน้า">◀</button>
-            <button class="ctrl-btn" id="play-pause-btn" onclick="togglePlayPause()" title="เล่น/หยุดเพลง">❚❚</button>
-            <button class="ctrl-btn" onclick="playNextSong()" title="เพลงถัดไป">▶</button>
-            <button class="ctrl-btn" id="repeat-btn" onclick="toggleRepeat()" title="เล่นซ้ำ">⟳</button>
-        </div>
-    
-        <!-- เพิ่มส่วนแสดงสถานะเพลง -->
-        <div id="music-status">
-            <div id="track-name">ไม่ได้เล่นเพลง</div>
-            <div id="track-time">00:00 / 00:00</div>
+        <!-- ช่องข้อความที่อยากให้ติดพุ่มไม้ -->
+        <div class="input-wrapper">
+            <input type="text" id="daily-message" placeholder="กำลังโหลดข้อความ...">
+            <div id="sakura-container"></div>
         </div>
     </div>
+    <!-- สิ้นสุดหน้าจอแรก -->
 
     <div id="player"></div>
-
     <div id="side-tab" onclick="togglePanel()">⚙️ ตั้งค่า</div>
 
-     <!-- แผงเพลง -->
+    <!-- แผงเพลง -->
     <div id="control-panel">
-        <!-- ส่วนบน: หน้าปกและชื่อ -->
-<div id="now-playing-preview">
-    <!-- เปลี่ยนจาก img เป็น div สำหรับใส่ iframe วิดีโอ -->
-    <div id="video-preview-container" style="width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #000;">
-        <div id="preview-player"></div>
-    </div>
-    <h3 id="display-title">เลือกเพลงเพื่อเริ่มฟัง</h3>
-</div>
-
+        <div id="now-playing-preview">
+            <div id="video-preview-container" style="width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #000;">
+                <div id="preview-player"></div>
+            </div>
+            <h3 id="display-title">เลือกเพลงเพื่อเริ่มฟัง</h3>
+        </div>
         <h3>Music Settings</h3>
         <input type="text" id="musicInput" placeholder="วางลิงก์ YouTube ที่นี่...">
         <button onclick="saveAndPlay()">เพิ่มเข้าคลังเพลง</button>
-
-        <!-- ส่วนรายการเพลง -->
         <div id="playlist-container">
             <h4>รายการเพลงของคุณ:</h4>
-            <ul id="song-list">
-            <!-- รายการเพลงจะมาแสดงตรงนี้ -->
-            </ul>
+            <ul id="song-list"></ul>
         </div>
     </div>
 
     <div id="overlay" onclick="togglePanel()"></div>
-
     <div id="cute-popup" class="hidden">
         <p id="popup-text">บันทึกเพลงให้แล้วน้า!</p>
     </div>
 
+    <!-- ส่วนเมนู (จะอยู่จอถัดลงมา ไม่ทับกันแน่นอน) -->
     <section class="menu-section">
-    <div class="glass-panel">
-        <h2 class="menu-title">✨ รวมหมวดหมู่ความรักของเรา ✨</h2>
-        <div class="tags-grid">
-            <!-- เมนูหลัก -->
-            <div class="tag">🏠 หน้าหลัก</div>
-            <div class="tag">📖 ไดอารี่</div>
-            <div class="tag">💌 กล่องจดหมาย</div>
-            <div class="tag">📅 แผนเดท</div>
-            <div class="tag">🎯 Bucket List</div>
-            <div class="tag">📸 อัลบั้มรูป</div>
-            <div class="tag">🌳 ต้นไม้ของเรา</div>
-            <div class="tag">🍫 สถิติช็อกโกแลต</div>
-            <div class="tag">👻 เกมผี</div>
-            <div class="tag">⚙️ ตั้งค่า</div>
+        <div class="glass-panel">
+            <h2 class="menu-title">✨ รวมหมวดหมู่ความรักของเรา ✨</h2>
+            <div class="tags-grid">
+                <div class="tag">🏠 หน้าหลัก</div>
+                <div class="tag">📖 ไดอารี่</div>
+                <div class="tag">💌 กล่องจดหมาย</div>
+                <div class="tag">📅 แผนเดท</div>
+                <div class="tag">🎯 Bucket List</div>
+                <div class="tag">📸 อัลบั้มรูป</div>
+                <div class="tag">🌳 ต้นไม้ของเรา</div>
+                <div class="tag">🍫 สถิติช็อกโกแลต</div>
+                <div class="tag">👻 เกมผี</div>
+                <div class="tag">⚙️ ตั้งค่า</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ปฏิทินสไตล์โคเรีย/พาสเทล -->
+<div class="calendar-card">
+    <div class="calendar-header-img">
+        <div class="cal-title-area">
+            <h2 id="cal-month-name">July</h2>
+            <span id="cal-year-num">2026</span>
         </div>
     </div>
-</section>
-
+    
+    <div class="calendar-card">
+    <div class="calendar-header-img">
+        <!-- เพิ่มปุ่มลูกศรเปลี่ยนเดือน -->
+        <button class="cal-nav-btn" onclick="changeMonth(-1)">❮</button>
+        <div class="cal-title-area">
+            <h2 id="cal-month-name">July</h2>
+            <span id="cal-year-num">2026</span>
+        </div>
+        <button class="cal-nav-btn" onclick="changeMonth(1)">❯</button>
+    </div>
+    
     <div class="calendar-wrapper">
-    <div class="calendar-header">
-        <span id="month-year">กรกฎาคม 2569</span>
+        <div class="calendar-grid" id="calendar-days">
+            <!-- วันและตารางจะถูกสร้างด้วย JavaScript -->
+        </div>
     </div>
-    <div class="calendar-grid" id="calendar-days">
-        <!-- วันจะถูกสร้างขึ้นด้วย JavaScript -->
-    </div>
+    
+    <div class="calendar-footer-pattern"></div>
 </div>
+
+
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
@@ -410,28 +428,54 @@
 
     initMessage();
 
-    // สร้างปฏิทินโดยใช้ตัวแปร calDate แทน เพื่อไม่ให้ไปชนกับฟังก์ชันนาฬิกา
-    const calendarDays = document.getElementById('calendar-days');
-    const calDate = new Date();
-    const year = calDate.getFullYear();
-    const month = calDate.getMonth();
-    
-    const dayNames = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
-    dayNames.forEach(day => {
-        calendarDays.innerHTML += `<div class="day-name">${day}</div>`;
-    });
+    // ==========================================
+    // ระบบปฏิทินแบบกดเปลี่ยนเดือนได้ (Interactive Calendar)
+    // ==========================================
+    let currentCalDate = new Date();
 
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    function renderCalendar() {
+        const calendarDays = document.getElementById('calendar-days');
+        calendarDays.innerHTML = ""; // ล้างตารางเก่าทิ้งก่อนสร้างใหม่
 
-    for (let i = 0; i < firstDay; i++) {
-        calendarDays.innerHTML += `<div class="day-num" style="background:transparent"></div>`;
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        
+        // แสดงชื่อเดือนและปี
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        document.getElementById('cal-month-name').innerText = monthNames[month];
+        document.getElementById('cal-year-num').innerText = year;
+
+        // สร้างหัวตารางวัน (sun, mon, tue...)
+        const dayNames = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        dayNames.forEach(day => {
+            calendarDays.innerHTML += `<div class="day-name">${day}</div>`;
+        });
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // เว้นช่องว่างสำหรับวันของเดือนก่อนหน้า
+        for (let i = 0; i < firstDay; i++) {
+            calendarDays.innerHTML += `<div class="day-num" style="background:transparent; border:none;"></div>`;
+        }
+
+        // สร้างช่องตัวเลขประจำวัน
+        const todayReal = new Date();
+        for (let i = 1; i <= daysInMonth; i++) {
+            // เช็คว่าเป็นวันปัจจุบันจริงๆ หรือไม่ (จะไฮไลท์เฉพาะถ้าตรงกับเดือนและปีปัจจุบัน)
+            const isToday = (i === todayReal.getDate() && month === todayReal.getMonth() && year === todayReal.getFullYear()) ? 'today' : '';
+            calendarDays.innerHTML += `<div class="day-num ${isToday}">${i}</div>`;
+        }
     }
 
-    for (let i = 1; i <= daysInMonth; i++) {
-        const isToday = i === calDate.getDate() ? 'today' : '';
-        calendarDays.innerHTML += `<div class="day-num ${isToday}">${i}</div>`;
+    // ฟังก์ชันสำหรับกดเปลี่ยนเดือน (dir: -1 ย้อนกลับ, 1 ไปข้างหน้า)
+    window.changeMonth = (dir) => {
+        currentCalDate.setMonth(currentCalDate.getMonth() + dir);
+        renderCalendar();
     }
+
+    // เริ่มต้นแสดงผลปฏิทินเมื่อโหลดหน้าเว็บ
+    renderCalendar();
 </script>
 </body>
 </html>
